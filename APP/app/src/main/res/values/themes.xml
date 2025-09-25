@@ -1,0 +1,9 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <style name="Base.Theme.MyApplication" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- ví dụ tuỳ chỉnh -->
+        <item name="android:windowBackground">#3b5998</item>
+        <item name="android:textColor">@android:color/white</item>
+    </style>
+
+    <style name="Theme.MyApplication" parent="Base.Theme.MyApplication"/>
+</resources>
