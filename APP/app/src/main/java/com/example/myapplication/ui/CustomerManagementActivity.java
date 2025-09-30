@@ -26,7 +26,6 @@ import com.example.myapplication.utils.MockDataGenerator;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class CustomerManagementActivity extends AppCompatActivity implements CustomerAdapter.OnCustomerClickListener {
 
@@ -34,14 +33,13 @@ public class CustomerManagementActivity extends AppCompatActivity implements Cus
     private LinearLayout layoutEmpty;
     private EditText etSearch;
     private ImageView btnBack, btnAddCustomer;
-    private Button btnFilter;
     private TextView tvTotalCustomers, tvActiveCustomers, tvNewCustomers;
-
+    
     private CustomerAdapter customerAdapter;
     private List<Customer> allCustomers = new ArrayList<>();
     private List<Customer> filteredCustomers = new ArrayList<>();
-
-    private String currentSearchQuery = "";
+    
+    private String currentFilter = "ALL";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,11 +49,10 @@ public class CustomerManagementActivity extends AppCompatActivity implements Cus
         initViews();
         setupRecyclerView();
         setupClickListeners();
-        setupSearchFilter();
         loadCustomers();
         updateStats();
     }
-
+    
     private void initViews() {
         try {
             rvCustomers = findViewById(R.id.rvCustomers);
@@ -71,7 +68,7 @@ public class CustomerManagementActivity extends AppCompatActivity implements Cus
             e.printStackTrace();
         }
     }
-
+    
     private void setupRecyclerView() {
         try {
             customerAdapter = new CustomerAdapter(filteredCustomers, this);
@@ -82,7 +79,7 @@ public class CustomerManagementActivity extends AppCompatActivity implements Cus
             e.printStackTrace();
         }
     }
-
+    
     private void setupClickListeners() {
         try {
             if (btnBack != null) {
@@ -91,7 +88,7 @@ public class CustomerManagementActivity extends AppCompatActivity implements Cus
                     finish();
                 });
             }
-
+            
             if (btnAddCustomer != null) {
                 btnAddCustomer.setOnClickListener(v -> {
                     animateButtonClick(btnAddCustomer);
@@ -100,75 +97,80 @@ public class CustomerManagementActivity extends AppCompatActivity implements Cus
                     startActivity(intent);
                 });
             }
+            
+            
+            if (etSearch != null) {
+                etSearch.addTextChangedListener(new TextWatcher() {
+                    @Override
+                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
-            // btnFilter removed from new layout
+                    @Override
+                    public void onTextChanged(CharSequence s, int start, int before, int count) {
+                        applyFilters();
+                    }
+
+                    @Override
+                    public void afterTextChanged(Editable s) {}
+                });
+            }
         } catch (Exception e) {
             Toast.makeText(this, "Lỗi setup click listeners: " + e.getMessage(), Toast.LENGTH_LONG).show();
             e.printStackTrace();
         }
     }
-
-    private void setupSearchFilter() {
-        if (etSearch != null) {
-            etSearch.addTextChangedListener(new TextWatcher() {
-                @Override
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-                @Override
-                public void onTextChanged(CharSequence s, int start, int before, int count) {
-                    applyFilters();
-                }
-
-                @Override
-                public void afterTextChanged(Editable s) {}
-            });
-        }
-    }
-
+    
+    
     private void applyFilters() {
-        currentSearchQuery = etSearch != null ? etSearch.getText().toString().toLowerCase() : "";
         filteredCustomers.clear();
-
-        List<Customer> tempFiltered = allCustomers.stream()
-                .filter(customer -> {
-                    boolean matchesSearch = customer.getName().toLowerCase().contains(currentSearchQuery) ||
-                            customer.getEmail().toLowerCase().contains(currentSearchQuery) ||
-                            customer.getPhone().toLowerCase().contains(currentSearchQuery);
-                    return matchesSearch;
-                })
-                .collect(Collectors.toList());
-
-        filteredCustomers.addAll(tempFiltered);
-        if (customerAdapter != null) {
-            customerAdapter.updateCustomers(filteredCustomers);
-        }
-        updateEmptyState();
-    }
-
-    private void updateEmptyState() {
-        if (layoutEmpty != null && rvCustomers != null) {
-            if (filteredCustomers.isEmpty()) {
-                rvCustomers.setVisibility(View.GONE);
-                layoutEmpty.setVisibility(View.VISIBLE);
-            } else {
-                rvCustomers.setVisibility(View.VISIBLE);
-                layoutEmpty.setVisibility(View.GONE);
+        
+        String searchQuery = etSearch.getText().toString().toLowerCase().trim();
+        
+        for (Customer customer : allCustomers) {
+            // Filter by search query only
+            boolean searchMatch = searchQuery.isEmpty() || 
+                customer.getName().toLowerCase().contains(searchQuery) ||
+                customer.getEmail().toLowerCase().contains(searchQuery) ||
+                customer.getPhone().toLowerCase().contains(searchQuery);
+            
+            if (searchMatch) {
+                filteredCustomers.add(customer);
             }
         }
+        
+        customerAdapter.updateCustomers(filteredCustomers);
+        updateEmptyState();
     }
-
+    
+    private void updateEmptyState() {
+        if (filteredCustomers.isEmpty()) {
+            rvCustomers.setVisibility(View.GONE);
+            layoutEmpty.setVisibility(View.VISIBLE);
+        } else {
+            rvCustomers.setVisibility(View.VISIBLE);
+            layoutEmpty.setVisibility(View.GONE);
+        }
+    }
+    
     private void loadCustomers() {
+        // Use mock data directly - no network calls
         allCustomers.clear();
         allCustomers.addAll(MockDataGenerator.getMockCustomers());
+        
+        // Debug log
+        System.out.println("CustomerManagementActivity: Loaded " + allCustomers.size() + " customers");
+        
         applyFilters();
-        Toast.makeText(this, "Đã tải danh sách khách hàng thành công!", Toast.LENGTH_SHORT).show();
+        updateStats();
+        
+        // Show success message
+        Toast.makeText(this, "Đã tải " + allCustomers.size() + " khách hàng thành công!", Toast.LENGTH_SHORT).show();
     }
-
+    
     private void updateStats() {
         int total = allCustomers.size();
         int active = 0;
         int newCustomers = 0;
-
+        
         for (Customer customer : allCustomers) {
             if ("ACTIVE".equals(customer.getStatus())) {
                 active++;
@@ -178,45 +180,47 @@ public class CustomerManagementActivity extends AppCompatActivity implements Cus
                 newCustomers++;
             }
         }
-
-        if (tvTotalCustomers != null) tvTotalCustomers.setText(String.valueOf(total));
-        if (tvActiveCustomers != null) tvActiveCustomers.setText(String.valueOf(active));
-        if (tvNewCustomers != null) tvNewCustomers.setText(String.valueOf(newCustomers));
-
+        
+        tvTotalCustomers.setText(String.valueOf(total));
+        tvActiveCustomers.setText(String.valueOf(active));
+        tvNewCustomers.setText(String.valueOf(newCustomers));
+        
+        // Animate stats
         animateStats();
     }
-
+    
     private void animateStats() {
-        // Animation for stats cards (if any)
+        ObjectAnimator totalAnim = ObjectAnimator.ofFloat(tvTotalCustomers, "scaleX", 1f, 1.2f, 1f);
+        ObjectAnimator activeAnim = ObjectAnimator.ofFloat(tvActiveCustomers, "scaleX", 1f, 1.2f, 1f);
+        ObjectAnimator newAnim = ObjectAnimator.ofFloat(tvNewCustomers, "scaleX", 1f, 1.2f, 1f);
+        
+        AnimatorSet statsSet = new AnimatorSet();
+        statsSet.playTogether(totalAnim, activeAnim, newAnim);
+        statsSet.setDuration(500);
+        statsSet.setInterpolator(new DecelerateInterpolator());
+        statsSet.setStartDelay(300);
+        statsSet.start();
     }
-
+    
     private void animateButtonClick(View button) {
         ObjectAnimator scaleX = ObjectAnimator.ofFloat(button, "scaleX", 1f, 0.9f, 1f);
         ObjectAnimator scaleY = ObjectAnimator.ofFloat(button, "scaleY", 1f, 0.9f, 1f);
-
+        
         AnimatorSet buttonSet = new AnimatorSet();
         buttonSet.playTogether(scaleX, scaleY);
         buttonSet.setDuration(200);
         buttonSet.start();
     }
-
+    
     @Override
     public void onCustomerClick(Customer customer) {
         // Navigate to CustomerDetailActivity
-        // Intent intent = new Intent(this, CustomerDetailActivity.class);
-        // intent.putExtra("customerId", customer.getId());
-        // startActivity(intent);
         Toast.makeText(this, "Xem chi tiết khách hàng: " + customer.getName(), Toast.LENGTH_SHORT).show();
     }
-
+    
     @Override
     public void onEditCustomer(Customer customer) {
         // Navigate to EditCustomerActivity
-        // Intent intent = new Intent(this, EditCustomerActivity.class);
-        // intent.putExtra("customerId", customer.getId());
-        // startActivity(intent);
         Toast.makeText(this, "Chỉnh sửa khách hàng: " + customer.getName(), Toast.LENGTH_SHORT).show();
     }
-
-    // onDelete method removed as it's not in the interface
 }

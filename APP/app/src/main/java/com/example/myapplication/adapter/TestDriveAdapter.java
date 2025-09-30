@@ -4,7 +4,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -37,7 +36,8 @@ public class TestDriveAdapter extends RecyclerView.Adapter<TestDriveAdapter.Test
     @NonNull
     @Override
     public TestDriveViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_test_drive, parent, false);
+        View view = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.item_test_drive, parent, false);
         return new TestDriveViewHolder(view);
     }
 
@@ -53,8 +53,7 @@ public class TestDriveAdapter extends RecyclerView.Adapter<TestDriveAdapter.Test
     }
 
     public void updateTestDrives(List<TestDrive> newTestDrives) {
-        this.testDrives.clear();
-        this.testDrives.addAll(newTestDrives);
+        this.testDrives = newTestDrives;
         notifyDataSetChanged();
     }
 
@@ -80,11 +79,16 @@ public class TestDriveAdapter extends RecyclerView.Adapter<TestDriveAdapter.Test
             tvVehicleName.setText(testDrive.getVehicleName());
             
             // Set date and time
-            SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
-            SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
-            
-            tvDate.setText(dateFormat.format(testDrive.getScheduledDate()));
-            tvTime.setText(timeFormat.format(testDrive.getScheduledDate()));
+            if (testDrive.getScheduledDate() != null) {
+                SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+                SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
+                
+                tvDate.setText(dateFormat.format(testDrive.getScheduledDate()));
+                tvTime.setText(timeFormat.format(testDrive.getScheduledDate()));
+            } else {
+                tvDate.setText("N/A");
+                tvTime.setText("N/A");
+            }
             
             // Set status
             String statusText = getStatusText(testDrive.getStatus());

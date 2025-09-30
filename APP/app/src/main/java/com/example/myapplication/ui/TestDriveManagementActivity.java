@@ -26,7 +26,6 @@ import com.example.myapplication.utils.MockDataGenerator;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class TestDriveManagementActivity extends AppCompatActivity implements TestDriveAdapter.OnTestDriveClickListener {
 
@@ -34,14 +33,13 @@ public class TestDriveManagementActivity extends AppCompatActivity implements Te
     private LinearLayout layoutEmpty;
     private EditText etSearch;
     private ImageView btnBack, btnAddTestDrive;
-    private Button btnFilter;
     private TextView tvTotalTestDrives, tvScheduledTestDrives, tvCompletedTestDrives;
-
+    
     private TestDriveAdapter testDriveAdapter;
     private List<TestDrive> allTestDrives = new ArrayList<>();
     private List<TestDrive> filteredTestDrives = new ArrayList<>();
-
-    private String currentSearchQuery = "";
+    
+    private String currentFilter = "ALL";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,11 +49,10 @@ public class TestDriveManagementActivity extends AppCompatActivity implements Te
         initViews();
         setupRecyclerView();
         setupClickListeners();
-        setupSearchFilter();
         loadTestDrives();
         updateStats();
     }
-
+    
     private void initViews() {
         try {
             rvTestDrives = findViewById(R.id.rvTestDrives);
@@ -71,7 +68,7 @@ public class TestDriveManagementActivity extends AppCompatActivity implements Te
             e.printStackTrace();
         }
     }
-
+    
     private void setupRecyclerView() {
         try {
             testDriveAdapter = new TestDriveAdapter(filteredTestDrives, this);
@@ -82,7 +79,7 @@ public class TestDriveManagementActivity extends AppCompatActivity implements Te
             e.printStackTrace();
         }
     }
-
+    
     private void setupClickListeners() {
         try {
             if (btnBack != null) {
@@ -91,7 +88,7 @@ public class TestDriveManagementActivity extends AppCompatActivity implements Te
                     finish();
                 });
             }
-
+            
             if (btnAddTestDrive != null) {
                 btnAddTestDrive.setOnClickListener(v -> {
                     animateButtonClick(btnAddTestDrive);
@@ -100,74 +97,79 @@ public class TestDriveManagementActivity extends AppCompatActivity implements Te
                     startActivity(intent);
                 });
             }
+            
+            
+            if (etSearch != null) {
+                etSearch.addTextChangedListener(new TextWatcher() {
+                    @Override
+                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
-            // btnFilter removed from new layout
+                    @Override
+                    public void onTextChanged(CharSequence s, int start, int before, int count) {
+                        applyFilters();
+                    }
+
+                    @Override
+                    public void afterTextChanged(Editable s) {}
+                });
+            }
         } catch (Exception e) {
             Toast.makeText(this, "Lỗi setup click listeners: " + e.getMessage(), Toast.LENGTH_LONG).show();
             e.printStackTrace();
         }
     }
-
-    private void setupSearchFilter() {
-        if (etSearch != null) {
-            etSearch.addTextChangedListener(new TextWatcher() {
-                @Override
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-                @Override
-                public void onTextChanged(CharSequence s, int start, int before, int count) {
-                    applyFilters();
-                }
-
-                @Override
-                public void afterTextChanged(Editable s) {}
-            });
-        }
-    }
-
+    
+    
     private void applyFilters() {
-        currentSearchQuery = etSearch != null ? etSearch.getText().toString().toLowerCase() : "";
         filteredTestDrives.clear();
-
-        List<TestDrive> tempFiltered = allTestDrives.stream()
-                .filter(testDrive -> {
-                    boolean matchesSearch = testDrive.getCustomerName().toLowerCase().contains(currentSearchQuery) ||
-                            testDrive.getVehicleName().toLowerCase().contains(currentSearchQuery);
-                    return matchesSearch;
-                })
-                .collect(Collectors.toList());
-
-        filteredTestDrives.addAll(tempFiltered);
-        if (testDriveAdapter != null) {
-            testDriveAdapter.updateTestDrives(filteredTestDrives);
-        }
-        updateEmptyState();
-    }
-
-    private void updateEmptyState() {
-        if (layoutEmpty != null && rvTestDrives != null) {
-            if (filteredTestDrives.isEmpty()) {
-                rvTestDrives.setVisibility(View.GONE);
-                layoutEmpty.setVisibility(View.VISIBLE);
-            } else {
-                rvTestDrives.setVisibility(View.VISIBLE);
-                layoutEmpty.setVisibility(View.GONE);
+        
+        String searchQuery = etSearch.getText().toString().toLowerCase().trim();
+        
+        for (TestDrive testDrive : allTestDrives) {
+            // Filter by search query only
+            boolean searchMatch = searchQuery.isEmpty() || 
+                testDrive.getCustomerName().toLowerCase().contains(searchQuery) ||
+                testDrive.getVehicleName().toLowerCase().contains(searchQuery);
+            
+            if (searchMatch) {
+                filteredTestDrives.add(testDrive);
             }
         }
+        
+        testDriveAdapter.updateTestDrives(filteredTestDrives);
+        updateEmptyState();
     }
-
+    
+    private void updateEmptyState() {
+        if (filteredTestDrives.isEmpty()) {
+            rvTestDrives.setVisibility(View.GONE);
+            layoutEmpty.setVisibility(View.VISIBLE);
+        } else {
+            rvTestDrives.setVisibility(View.VISIBLE);
+            layoutEmpty.setVisibility(View.GONE);
+        }
+    }
+    
     private void loadTestDrives() {
+        // Use mock data directly - no network calls
         allTestDrives.clear();
         allTestDrives.addAll(MockDataGenerator.getMockTestDrives());
+        
+        // Debug log
+        System.out.println("TestDriveManagementActivity: Loaded " + allTestDrives.size() + " test drives");
+        
         applyFilters();
-        Toast.makeText(this, "Đã tải danh sách lịch chạy thử thành công!", Toast.LENGTH_SHORT).show();
+        updateStats();
+        
+        // Show success message
+        Toast.makeText(this, "Đã tải " + allTestDrives.size() + " lịch chạy thử thành công!", Toast.LENGTH_SHORT).show();
     }
-
+    
     private void updateStats() {
         int total = allTestDrives.size();
         int scheduled = 0;
         int completed = 0;
-
+        
         for (TestDrive testDrive : allTestDrives) {
             if ("SCHEDULED".equals(testDrive.getStatus())) {
                 scheduled++;
@@ -175,49 +177,52 @@ public class TestDriveManagementActivity extends AppCompatActivity implements Te
                 completed++;
             }
         }
-
-        if (tvTotalTestDrives != null) tvTotalTestDrives.setText(String.valueOf(total));
-        if (tvScheduledTestDrives != null) tvScheduledTestDrives.setText(String.valueOf(scheduled));
-        if (tvCompletedTestDrives != null) tvCompletedTestDrives.setText(String.valueOf(completed));
-
+        
+        tvTotalTestDrives.setText(String.valueOf(total));
+        tvScheduledTestDrives.setText(String.valueOf(scheduled));
+        tvCompletedTestDrives.setText(String.valueOf(completed));
+        
+        // Animate stats
         animateStats();
     }
-
+    
     private void animateStats() {
-        // Animation for stats cards (if any)
+        ObjectAnimator totalAnim = ObjectAnimator.ofFloat(tvTotalTestDrives, "scaleX", 1f, 1.2f, 1f);
+        ObjectAnimator scheduledAnim = ObjectAnimator.ofFloat(tvScheduledTestDrives, "scaleX", 1f, 1.2f, 1f);
+        ObjectAnimator completedAnim = ObjectAnimator.ofFloat(tvCompletedTestDrives, "scaleX", 1f, 1.2f, 1f);
+        
+        AnimatorSet statsSet = new AnimatorSet();
+        statsSet.playTogether(totalAnim, scheduledAnim, completedAnim);
+        statsSet.setDuration(500);
+        statsSet.setInterpolator(new DecelerateInterpolator());
+        statsSet.setStartDelay(300);
+        statsSet.start();
     }
-
+    
     private void animateButtonClick(View button) {
         ObjectAnimator scaleX = ObjectAnimator.ofFloat(button, "scaleX", 1f, 0.9f, 1f);
         ObjectAnimator scaleY = ObjectAnimator.ofFloat(button, "scaleY", 1f, 0.9f, 1f);
-
+        
         AnimatorSet buttonSet = new AnimatorSet();
         buttonSet.playTogether(scaleX, scaleY);
         buttonSet.setDuration(200);
         buttonSet.start();
     }
-
+    
     @Override
     public void onViewDetails(TestDrive testDrive) {
         // Navigate to TestDriveDetailActivity
-        // Intent intent = new Intent(this, TestDriveDetailActivity.class);
-        // intent.putExtra("testDriveId", testDrive.getId());
-        // startActivity(intent);
         Toast.makeText(this, "Xem chi tiết lịch chạy thử: " + testDrive.getCustomerName(), Toast.LENGTH_SHORT).show();
     }
-
+    
     @Override
     public void onEdit(TestDrive testDrive) {
         // Navigate to EditTestDriveActivity
-        // Intent intent = new Intent(this, EditTestDriveActivity.class);
-        // intent.putExtra("testDriveId", testDrive.getId());
-        // startActivity(intent);
         Toast.makeText(this, "Chỉnh sửa lịch chạy thử: " + testDrive.getCustomerName(), Toast.LENGTH_SHORT).show();
     }
-
+    
     @Override
     public void onCancel(TestDrive testDrive) {
-        // Cancel test drive
         testDrive.setStatus("CANCELLED");
         MockDataGenerator.updateTestDrive(testDrive);
         loadTestDrives();

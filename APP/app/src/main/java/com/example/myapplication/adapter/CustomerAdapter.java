@@ -33,7 +33,8 @@ public class CustomerAdapter extends RecyclerView.Adapter<CustomerAdapter.Custom
     @NonNull
     @Override
     public CustomerViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_customer, parent, false);
+        View view = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.item_customer, parent, false);
         return new CustomerViewHolder(view);
     }
 
@@ -49,8 +50,7 @@ public class CustomerAdapter extends RecyclerView.Adapter<CustomerAdapter.Custom
     }
 
     public void updateCustomers(List<Customer> newCustomers) {
-        this.customers.clear();
-        this.customers.addAll(newCustomers);
+        this.customers = newCustomers;
         notifyDataSetChanged();
     }
 
@@ -85,9 +85,9 @@ public class CustomerAdapter extends RecyclerView.Adapter<CustomerAdapter.Custom
             tvCustomerStatus.setBackgroundResource(getStatusBackground(customer.getStatus()));
             
             // Set orders count (mock data)
-            tvCustomerOrders.setText("3 đơn hàng");
+            tvCustomerOrders.setText("2 đơn hàng");
             
-            // Set avatar (using a default icon for now)
+            // Set avatar
             ivCustomerAvatar.setImageResource(R.drawable.ic_person);
             
             // Set click listeners

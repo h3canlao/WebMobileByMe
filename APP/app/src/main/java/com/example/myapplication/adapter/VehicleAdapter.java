@@ -55,8 +55,7 @@ public class VehicleAdapter extends RecyclerView.Adapter<VehicleAdapter.VehicleV
     }
     
     public void updateVehicles(List<Vehicle> newVehicles) {
-        this.vehicles.clear();
-        this.vehicles.addAll(newVehicles);
+        this.vehicles = newVehicles;
         notifyDataSetChanged();
     }
 
@@ -126,7 +125,6 @@ public class VehicleAdapter extends RecyclerView.Adapter<VehicleAdapter.VehicleV
         }
         
         private void setVehicleImage(Vehicle vehicle) {
-            String brand = vehicle.getBrand().toLowerCase();
             String imageUrl = getVehicleImageUrl(vehicle);
             
             if (imageUrl != null && !imageUrl.isEmpty()) {
@@ -140,6 +138,7 @@ public class VehicleAdapter extends RecyclerView.Adapter<VehicleAdapter.VehicleV
                     .into(ivVehicleImage);
             } else {
                 // Fallback to gradient backgrounds
+                String brand = vehicle.getBrand().toLowerCase();
                 if (brand.contains("tesla")) {
                     ivVehicleImage.setBackgroundResource(R.drawable.tesla_model_s_background);
                 } else if (brand.contains("vinfast")) {
@@ -148,10 +147,6 @@ public class VehicleAdapter extends RecyclerView.Adapter<VehicleAdapter.VehicleV
                     ivVehicleImage.setBackgroundResource(R.drawable.bmw_background);
                 } else if (brand.contains("mercedes")) {
                     ivVehicleImage.setBackgroundResource(R.drawable.mercedes_background);
-                } else if (brand.contains("audi")) {
-                    ivVehicleImage.setBackgroundResource(R.drawable.audi_background);
-                } else if (brand.contains("ford")) {
-                    ivVehicleImage.setBackgroundResource(R.drawable.ford_background);
                 } else {
                     ivVehicleImage.setBackgroundResource(R.drawable.placeholder_car);
                 }
@@ -163,24 +158,12 @@ public class VehicleAdapter extends RecyclerView.Adapter<VehicleAdapter.VehicleV
             String model = vehicle.getName().toLowerCase();
             
             if (brand.contains("vinfast")) {
-                if (model.contains("vf8")) {
-                    return "https://static-cms-prod.vinfast.com/statics/2024-06/vf7-1.webp";
-                } else if (model.contains("vf9")) {
-                    return "https://static-cms-prod.vinfast.com/statics/2024-06/vf7-1.webp";
-                } else if (model.contains("vf6")) {
-                    return "https://static-cms-prod.vinfast.com/statics/2024-06/vf7-1.webp";
-                }
+                return "https://static-cms-prod.vinfast.com/statics/2024-06/vf7-1.webp";
             } else if (brand.contains("tesla")) {
-                if (model.contains("model 3")) {
-                    return "https://cdn1.smartprix.com/rx-iHovaGL7k-w1200-h1200/HovaGL7k.webp";
-                } else if (model.contains("model s")) {
-                    return "https://cdn1.smartprix.com/rx-iHovaGL7k-w1200-h1200/HovaGL7k.webp";
-                } else if (model.contains("model y")) {
-                    return "https://cdn1.smartprix.com/rx-iHovaGL7k-w1200-h1200/HovaGL7k.webp";
-                }
+                return "https://cdn1.smartprix.com/rx-iHovaGL7k-w1200-h1200/HovaGL7k.webp";
             }
             
-            return null; // No specific image found
+            return vehicle.getImageUrl(); // Use the URL from the vehicle object
         }
         
         private String getStatusText(String status) {

@@ -16,6 +16,7 @@ import com.example.myapplication.R;
 import com.example.myapplication.adapter.OrderAdapter;
 import com.example.myapplication.model.Order;
 import com.example.myapplication.repository.OrderRepository;
+import com.example.myapplication.utils.MockDataGenerator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -142,31 +143,16 @@ public class OrderListActivity extends AppCompatActivity implements OrderAdapter
     }
     
     private void loadOrders() {
-        // Use mock data directly - no network calls
-        orderRepository.getOrders(null, "dealer001", "staff001", 
-            new OrderRepository.OrderListCallback() {
-                @Override
-                public void onSuccess(List<Order> orders) {
-                    runOnUiThread(() -> {
-                        allOrders.clear();
-                        allOrders.addAll(orders);
-                        applyFilters();
-                        
-                        Toast.makeText(OrderListActivity.this, 
-                            "Đã tải " + orders.size() + " đơn hàng", 
-                            Toast.LENGTH_SHORT).show();
-                    });
-                }
-
-                @Override
-                public void onError(String error) {
-                    runOnUiThread(() -> {
-                        Toast.makeText(OrderListActivity.this, 
-                            "Lỗi tải đơn hàng: " + error, 
-                            Toast.LENGTH_SHORT).show();
-                    });
-                }
-            });
+        // Use mock data directly
+        allOrders.clear();
+        allOrders.addAll(MockDataGenerator.getMockOrders());
+        
+        // Debug log
+        System.out.println("OrderListActivity: Loaded " + allOrders.size() + " orders");
+        
+        applyFilters();
+        
+        Toast.makeText(this, "Đã tải " + allOrders.size() + " đơn hàng", Toast.LENGTH_SHORT).show();
     }
 
     @Override

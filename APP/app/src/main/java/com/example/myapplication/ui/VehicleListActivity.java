@@ -1,13 +1,10 @@
 package com.example.myapplication.ui;
 
-import android.animation.AnimatorSet;
-import android.animation.ObjectAnimator;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
-import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -55,7 +52,6 @@ public class VehicleListActivity extends AppCompatActivity implements VehicleAda
         setupClickListeners();
         setupSearchFilter();
         loadVehicles();
-        updateStats();
     }
 
     private void initViews() {
@@ -76,14 +72,10 @@ public class VehicleListActivity extends AppCompatActivity implements VehicleAda
     }
     
     private void setupClickListeners() {
-        btnBack.setOnClickListener(v -> {
-            animateButtonClick(btnBack);
-            finish();
-        });
+        btnBack.setOnClickListener(v -> finish());
         
         btnFilter.setOnClickListener(v -> {
-            animateButtonClick(btnFilter);
-            Toast.makeText(this, "Chức năng lọc", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Chức năng lọc nâng cao", Toast.LENGTH_SHORT).show();
         });
     }
     
@@ -94,7 +86,7 @@ public class VehicleListActivity extends AppCompatActivity implements VehicleAda
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                currentSearchQuery = s.toString().toLowerCase().trim();
+                currentSearchQuery = s.toString();
                 applyFilters();
             }
 
@@ -106,8 +98,14 @@ public class VehicleListActivity extends AppCompatActivity implements VehicleAda
     private void loadVehicles() {
         allVehicles.clear();
         allVehicles.addAll(MockDataGenerator.getMockVehicles());
+        
+        // Debug log
+        System.out.println("VehicleListActivity: Loaded " + allVehicles.size() + " vehicles");
+        
         applyFilters();
-        Toast.makeText(this, "Đã tải danh sách xe thành công!", Toast.LENGTH_SHORT).show();
+        updateStats();
+        
+        Toast.makeText(this, "Đã tải " + allVehicles.size() + " xe thành công!", Toast.LENGTH_SHORT).show();
     }
     
     private void applyFilters() {
@@ -118,10 +116,10 @@ public class VehicleListActivity extends AppCompatActivity implements VehicleAda
         } else {
             filteredVehicles.addAll(allVehicles.stream()
                     .filter(vehicle -> 
-                        vehicle.getName().toLowerCase().contains(currentSearchQuery) ||
-                        vehicle.getBrand().toLowerCase().contains(currentSearchQuery) ||
-                        vehicle.getModel().toLowerCase().contains(currentSearchQuery) ||
-                        vehicle.getColor().toLowerCase().contains(currentSearchQuery))
+                        vehicle.getName().toLowerCase().contains(currentSearchQuery.toLowerCase()) ||
+                        vehicle.getBrand().toLowerCase().contains(currentSearchQuery.toLowerCase()) ||
+                        vehicle.getModel().toLowerCase().contains(currentSearchQuery.toLowerCase()) ||
+                        vehicle.getColor().toLowerCase().contains(currentSearchQuery.toLowerCase()))
                     .collect(Collectors.toList()));
         }
         
@@ -149,19 +147,9 @@ public class VehicleListActivity extends AppCompatActivity implements VehicleAda
         tvSoldCount.setText(String.valueOf(sold));
     }
 
-    private void animateButtonClick(View view) {
-        ObjectAnimator scaleX = ObjectAnimator.ofFloat(view, "scaleX", 1.0f, 0.95f, 1.0f);
-        ObjectAnimator scaleY = ObjectAnimator.ofFloat(view, "scaleY", 1.0f, 0.95f, 1.0f);
-        scaleX.setInterpolator(new AccelerateDecelerateInterpolator());
-        scaleY.setInterpolator(new AccelerateDecelerateInterpolator());
-        AnimatorSet buttonSet = new AnimatorSet();
-        buttonSet.playTogether(scaleX, scaleY);
-        buttonSet.setDuration(150);
-        buttonSet.start();
-    }
-
     @Override
     public void onVehicleClick(Vehicle vehicle) {
+        // Navigate to VehicleDetailActivity
         Intent intent = new Intent(this, VehicleDetailActivity.class);
         intent.putExtra("vehicleId", vehicle.getId());
         startActivity(intent);
@@ -169,6 +157,7 @@ public class VehicleListActivity extends AppCompatActivity implements VehicleAda
 
     @Override
     public void onBookVehicle(Vehicle vehicle) {
+        // Navigate to CreateOrderActivity
         Intent intent = new Intent(this, CreateOrderActivity.class);
         intent.putExtra("vehicleId", vehicle.getId());
         startActivity(intent);

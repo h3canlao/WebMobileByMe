@@ -170,6 +170,7 @@ public class OrderDetailActivity extends AppCompatActivity {
             case "APPROVED": return "Đã duyệt";
             case "COMPLETED": return "Hoàn thành";
             case "CANCELLED": return "Đã hủy";
+            case "IN_PROGRESS": return "Đang xử lý";
             default: return status;
         }
     }
@@ -180,6 +181,7 @@ public class OrderDetailActivity extends AppCompatActivity {
             case "APPROVED": return R.drawable.bg_status_approved;
             case "COMPLETED": return R.drawable.bg_status_completed;
             case "CANCELLED": return R.drawable.bg_status_cancelled;
+            case "IN_PROGRESS": return R.drawable.bg_status_pending;
             default: return R.drawable.bg_status_pending;
         }
     }

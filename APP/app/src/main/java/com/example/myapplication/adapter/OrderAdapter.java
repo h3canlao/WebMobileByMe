@@ -75,8 +75,8 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
 
         public void bind(Order order) {
             tvOrderId.setText(order.getOrderNumber());
-            tvVehicleName.setText(getVehicleName(order.getVehicleId()));
-            tvCustomer.setText("Khách hàng: " + order.getCustomerId());
+            tvVehicleName.setText(order.getVehicleName());
+            tvCustomer.setText("Khách hàng: " + order.getCustomerName());
             
             // Format amount
             NumberFormat formatter = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
@@ -108,6 +108,7 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
                 case "APPROVED": return "Đã duyệt";
                 case "COMPLETED": return "Hoàn thành";
                 case "CANCELLED": return "Đã hủy";
+                case "IN_PROGRESS": return "Đang xử lý";
                 default: return status;
             }
         }
@@ -118,6 +119,7 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
                 case "APPROVED": return R.drawable.bg_status_approved;
                 case "COMPLETED": return R.drawable.bg_status_completed;
                 case "CANCELLED": return R.drawable.bg_status_cancelled;
+                case "IN_PROGRESS": return R.drawable.bg_status_pending;
                 default: return R.drawable.bg_status_pending;
             }
         }

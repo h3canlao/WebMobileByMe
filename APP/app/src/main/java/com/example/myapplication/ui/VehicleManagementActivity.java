@@ -214,10 +214,15 @@ public class VehicleManagementActivity extends AppCompatActivity implements Vehi
         // Use mock data directly - no network calls
         allVehicles.clear();
         allVehicles.addAll(MockDataGenerator.getMockVehicles());
+        
+        // Debug log
+        System.out.println("VehicleManagementActivity: Loaded " + allVehicles.size() + " vehicles");
+        
         applyFilters();
+        updateStats();
         
         // Show success message
-        Toast.makeText(this, "Đã tải danh sách xe thành công!", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Đã tải " + allVehicles.size() + " xe thành công!", Toast.LENGTH_SHORT).show();
     }
     
     private void updateStats() {
