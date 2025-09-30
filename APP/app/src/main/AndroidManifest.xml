@@ -21,6 +21,48 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-    </application>
+        
+        <activity
+            android:name=".ui.DashboardActivity"
+            android:exported="false" />
+            
+        <activity
+            android:name=".ui.VehicleListActivity"
+            android:exported="false" />
+            
+        <activity
+            android:name=".ui.CreateOrderActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.OrderListActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.VehicleDetailActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.VehicleManagementActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.OrderDetailActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.AddVehicleActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.EditVehicleActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.CustomerManagementActivity"
+            android:exported="false" />
+            <activity
+                android:name=".ui.TestDriveManagementActivity"
+                android:exported="false" />
+            <activity
+                android:name=".ui.AddCustomerActivity"
+                android:exported="false" />
+            <activity
+                android:name=".ui.AddTestDriveActivity"
+                android:exported="false" />
+        </application>
 
 </manifest>

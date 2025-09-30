@@ -2,4 +2,28 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    
+    <!-- Electric Vehicle Theme Colors -->
+    <color name="primary_green">#4CAF50</color>
+    <color name="primary_green_dark">#2E7D32</color>
+    <color name="primary_blue">#2196F3</color>
+    <color name="primary_blue_dark">#1976D2</color>
+    <color name="accent_orange">#FF9800</color>
+    <color name="accent_purple">#9C27B0</color>
+    
+    <!-- Status Colors -->
+    <color name="status_available">#4CAF50</color>
+    <color name="status_sold">#F44336</color>
+    <color name="status_maintenance">#FF9800</color>
+    <color name="status_pending">#FFC107</color>
+    
+    <!-- Background Colors -->
+    <color name="background_light">#F5F5F5</color>
+    <color name="background_card">#FFFFFF</color>
+    <color name="background_input">#F8F8F8</color>
+    
+    <!-- Text Colors -->
+    <color name="text_primary">#1B5E20</color>
+    <color name="text_secondary">#666666</color>
+    <color name="text_hint">#999999</color>
 </resources>
