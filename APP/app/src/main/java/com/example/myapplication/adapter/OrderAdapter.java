@@ -41,7 +41,7 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
     @Override
     public void onBindViewHolder(@NonNull OrderViewHolder holder, int position) {
         Order order = orders.get(position);
-        holder.bind(order);
+        holder.bind(order, listener);
     }
 
     @Override
@@ -73,7 +73,7 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
             });
         }
 
-        public void bind(Order order) {
+        public void bind(Order order, OnOrderClickListener listener) {
             tvOrderId.setText(order.getOrderNumber());
             tvVehicleName.setText(order.getVehicleName());
             tvCustomer.setText("Khách hàng: " + order.getCustomerName());
